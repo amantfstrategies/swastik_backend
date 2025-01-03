@@ -18,8 +18,9 @@ router.delete('/:categoryId', protect, categoryController.deleteCategory);
 //delete many categories
 router.post('/delete-many', categoryController.deleteManyCategories);
 
-
 //get all categories public
 router.get('/', categoryController.getAllCategories);
+
+router.get('/:categoryId', categoryController.getSingleCategory);
 
 module.exports = router;

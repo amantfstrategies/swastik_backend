@@ -68,6 +68,22 @@ exports.getAllCategories = async (req, res) => {
     }
 };
 
+exports.getSingleCategory = async (req, res) => {
+    try {
+        const { categoryId } = req.params;
+        console.log("get single category req:", categoryId)
+        const category = await Category.findById(categoryId);
+        if (!category) {
+            return res.status(404).json({ error: 'Category not found' });
+        }
+        console.log("category:", category)
+        res.status(200).json(category);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to fetch category' });
+    }
+}
+
 
 
 // Delete Many Categories
