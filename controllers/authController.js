@@ -41,9 +41,10 @@ exports.loginUser = async (req, res) => {
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
     res.cookie('authToken', token, {
       httpOnly: true,
-      secure: "false",
+      secure: "true",
       sameSite: 'Lax',
       maxAge: 60 * 60 * 1000, // 1 hour
+      domain:'process.env.COOKIE_DOMAIN',
     });
 
     res.json({ message: 'Login successful' });
