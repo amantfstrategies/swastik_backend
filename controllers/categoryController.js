@@ -26,17 +26,6 @@ exports.deleteCategory = async (req, res) => {
             return res.status(404).json({ error: 'Category not found' });
         }
 
-        if (category.category_icon) {
-            const imagePath = path.join(__dirname, '..', category.category_icon);
-            fs.unlink(imagePath, (err) => {
-                if (err) {
-                    console.error('Error deleting image file:', err);
-                } else {
-                    console.log('Image file deleted successfully');
-                }
-            });
-        }
-
         
         res.status(200).json({ message: 'Category deleted successfully', category });
     } catch (error) {
