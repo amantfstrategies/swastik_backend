@@ -13,4 +13,6 @@ router.put('/:slideId',protect, upload.array('slide_images'), slideController.ed
 
 router.delete('/:slideId',protect, slideController.deleteSlide);
 
+router.post('/delete-many',protect, slideController.deleteManySlides);
+
 module.exports = router;

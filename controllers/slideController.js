@@ -1,6 +1,6 @@
 const SlideModel = require('../models/Slide');
 const path = require('path');
-
+const fs = require("fs");
 
 exports.createSlide = async (req, res) => {
     try {
@@ -74,9 +74,64 @@ exports.deleteSlide = async (req, res) => {
         if (!slide) {
             return res.status(404).json({ error: 'Slide not found' });
         }
+
+
+        slide.slide_images.forEach(image => {
+            const imagePath = path.join(__dirname, '..', 'public', image); // Assuming the images are stored in 'public/images'
+            fs.unlink(imagePath, (err) => {
+                if (err) {
+                    console.error('Error deleting image:', err);
+                } else {
+                    console.log('Image deleted:', imagePath);
+                }
+            });
+        });
+
         res.status(200).json({ message: 'Slide deleted successfully', slide });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Failed to delete slide' });
+    }
+};
+
+
+
+exports.deleteManySlides = async (req, res) => {
+    const { slideIds } = req.body; // Expecting an array of slide IDs
+
+    if (!slideIds || !Array.isArray(slideIds) || slideIds.length === 0) {
+        return res.status(400).json({ error: 'Slide IDs are required and must be an array.' });
+    }
+
+    try {
+        const slides = await SlideModel.find({ _id: { $in: slideIds } });
+
+
+
+        const result = await SlideModel.deleteMany({ _id: { $in: slideIds } });
+
+        if (result.deletedCount === 0) {
+            return res.status(404).json({ error: 'No slides found to delete' });
+        }
+
+        slides.forEach(slide => {
+            slide.slide_images.forEach(image => {
+                const imagePath = path.join(__dirname, '..', 'public', image); // Assuming the images are stored in 'public/images'
+                fs.unlink(imagePath, (err) => {
+                    if (err) {
+                        console.error('Error deleting image for slide', slide._id, ':', err);
+                    } else {
+                        console.log('Image deleted for slide', slide._id);
+                    }
+                });
+            });
+        });
+
+        res.status(200).json({
+            message: `${result.deletedCount} slides deleted successfully.`,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to delete slides' });
     }
 };

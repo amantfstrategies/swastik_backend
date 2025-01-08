@@ -1,5 +1,6 @@
 const Category = require('../models/Category');
 const path = require('path');
+const fs = require('fs');
 exports.addCategory = async (req, res) => {
     try {
         console.log("category create req:", req.body)
@@ -25,7 +26,14 @@ exports.deleteCategory = async (req, res) => {
         if (!category) {
             return res.status(404).json({ error: 'Category not found' });
         }
-
+        const imagePath = path.join(__dirname, '..', 'public', category.category_icon);
+        fs.unlink(imagePath, (err) => {
+            if (err) {
+                console.error('Error deleting image:', err);
+            } else {
+                console.log('Image deleted successfully');
+            }
+        });
         
         res.status(200).json({ message: 'Category deleted successfully', category });
     } catch (error) {
@@ -91,11 +99,25 @@ exports.getSingleCategory = async (req, res) => {
 // Delete Many Categories
 exports.deleteManyCategories = async (req, res) => {
     try {
-        const { categoryIds } = req.body; // Expecting an array of category IDs
-        console.log("categoryIds:", categoryIds)
+        const { categoryIds } = req.body; 
+        console.log("categoryIds:", categoryIds);
+
         if (!Array.isArray(categoryIds) || categoryIds.length === 0) {
             return res.status(400).json({ error: 'Invalid category IDs' });
         }
+
+        const categories = await Category.find({ _id: { $in: categoryIds } }, 'category_icon');
+
+        categories.forEach(category => {
+            const imagePath = path.join(__dirname, '..', 'public', category.category_icon);
+            fs.unlink(imagePath, (err) => {
+                if (err) {
+                    console.error('Error deleting image for category', category._id, ':', err);
+                } else {
+                    console.log('Image deleted for category', category._id);
+                }
+            });
+        });
 
         const result = await Category.deleteMany({ _id: { $in: categoryIds } });
         if (result.deletedCount === 0) {
