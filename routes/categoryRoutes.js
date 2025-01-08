@@ -16,7 +16,7 @@ router.put('/:categoryId',protect, upload.single('category_icon'), categoryContr
 router.delete('/:categoryId', protect, categoryController.deleteCategory);
 
 //delete many categories
-router.post('/delete-many', categoryController.deleteManyCategories);
+router.post('/delete-many',protect, categoryController.deleteManyCategories);
 
 //get all categories public
 router.get('/', categoryController.getAllCategories);

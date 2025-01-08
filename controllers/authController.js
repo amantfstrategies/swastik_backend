@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User'); 
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
+
 
 
 
@@ -38,16 +38,15 @@ exports.loginUser = async (req, res) => {
       return res.status(400).json({ message: 'Invalid email or password' });
     }
 
-    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
-    res.cookie('authToken', token, {
-      httpOnly: true,
-      secure: "true",
-      sameSite: 'Lax',
-      maxAge: 60 * 60 * 1000, // 1 hour
-      domain:'process.env.COOKIE_DOMAIN',
-    });
-
-    res.json({ message: 'Login successful' });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    // res.cookie('authToken', token, {
+    //   httpOnly: true,
+    //   secure: "true",
+    //   sameSite: 'Lax',
+    //   maxAge: 60 * 60 * 1000, // 1 hour
+    // });
+    
+    res.json({ message: 'Login successful', token: token });
   } catch (error) {
     res.status(500).json({ message: 'Error logging in', error: error.message });
   }
