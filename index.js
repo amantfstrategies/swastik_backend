@@ -17,6 +17,9 @@ const categoryRoutes = require('./routes/categoryRoutes');
 const productRoutes = require('./routes/productRoutes');
 const cookieParser = require('cookie-parser');
 const authRoutes = require('./routes/authRoutes');
+const https = require('https');
+const http = require('http');
+const fs = require('fs');
 // Load environment variables
 dotenv.config();
 
@@ -40,9 +43,25 @@ app.use('/api/auth', authRoutes);
 
 
 // Define port
-const PORT = process.env.PORT || 3001;
+const HTTP_PORT = process.env.PORT || 3001;
+const HTTPS_PORT = 443;
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+const options = {
+  key: fs.readFileSync('./private.key'),  
+  cert: fs.readFileSync('./certificate.crt')  
+};
+
+http.createServer((req, res) => {
+  res.writeHead(301, { Location: `https://${req.headers.host.replace(/:80$/, `:${HTTPS_PORT}`)}${req.url}` });
+  res.end();
+}).listen(80, () => {
+  console.log(`HTTP server running on http://localhost:80 (redirecting to HTTPS)`);
 });
+
+https.createServer(options, app).listen(HTTPS_PORT, () => {
+  console.log(`Server running on https://localhost:${HTTPS_PORT}`);
+});
+// Start server
+// app.listen(PORT, () => {
+//   console.log(`Server running on http://localhost:${PORT}`);
+// });
