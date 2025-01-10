@@ -1,8 +1,12 @@
 const express = require('express');
 const cors = require('cors');
-const https = require('https');  // Import the https module
-const fs = require('fs');        // Import the fs module to read SSL files
-
+const app = express();
+app.use(cors({
+  origin: function (origin, callback) {
+    callback(null, true); 
+  },
+  credentials: true, 
+}));
 const dotenv = require('dotenv');
 const bodyParser = require('body-parser');
 
@@ -20,19 +24,10 @@ dotenv.config();
 // Connect to MongoDB
 connectDB();
 
-// Create the Express app
-const app = express();
-
-// Enable CORS
-app.use(cors({
-  origin: function (origin, callback) {
-    callback(null, true);
-  },
-  credentials: true,
-}));
 
 // Middleware
 app.use(bodyParser.json());
+
 app.use(express.json());
 app.use(cookieParser());
 
@@ -44,16 +39,12 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/auth', authRoutes);
 
-// Define the paths for your SSL certificate
-const options = {
-  key: fs.readFileSync('./mykey.key'),  // Path to the private key
-  cert: fs.readFileSync('./mycert.crt'),  // Path to the certificate
-};
+
 
 // Define port
 const PORT = process.env.PORT || 3001;
 
-// Start the HTTPS server
-https.createServer(options, app).listen(PORT, () => {
-  console.log(`Server running on https://localhost:${PORT}`);
+// Start server
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });
