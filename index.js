@@ -33,6 +33,9 @@ app.use(cookieParser());
 
 // Import routes
 app.use(express.static(path.join(__dirname, 'public')));
+app.get('/', (req, res) => {
+  res.send('Server is running...');
+});
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/slides', slideRoutes);
 app.use('/api/categories', categoryRoutes);
